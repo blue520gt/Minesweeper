@@ -2,7 +2,6 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
 import MineSweeper from '@/components/MineSweeper'
-import test from '@/components/test'
 
 Vue.use(Router)
 

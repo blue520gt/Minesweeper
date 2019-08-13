@@ -1,17 +1,21 @@
 <template>
   <!-- 最外层，包括难度选项、关闭、重启、倒计时 -->
   <div class="wholePage">
+    <!-- 操作按钮区域 -->
+    <div class="optionOfDegree">
+      <b>选项</b>
+    </div>
     <!-- 包含所有小方格的大格子 -->
     <div class="bigDiamond">
       <!-- 将statusNow的内容画在界面上  两个v-for  -->
-      <!-- 遍历30列，并通过i记录遍历到了第几个 -->
+      <!-- 遍历16行，并通过i记录遍历到了第几个 -->
       <div v-for="(mineSweeperWidthItem,i) in statusNow" class="columnOfDiamond">
-        <!-- 遍历16行，并通过j记录遍历到了第几个 -->
-        <div
+        <!-- 遍历30列，并通过j记录遍历到了第几个 -->
+        <button
           v-for="(mineSweeperHeightItem,j) in mineSweeperWidthItem"
           class="littleDiamond"
           v-on:click="clickBoom(i,j)"
-        ></div>
+        ></button>
       </div>
     </div>
   </div>
@@ -40,8 +44,8 @@ export default {
   data() {
     return {
       statusNow: [],
-      mineSweeperWidth: 30,
-      mineSweeperHeight: 16
+      mineSweeperWidth: 16,
+      mineSweeperHeight: 30
     };
   },
   created() {
@@ -62,39 +66,79 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+/* 最外的div */
+.wholePage {
+  width: 550px;
+  height: 361px;
+  margin: 0 auto;
+  background-color: white;
+  border-radius: 5px;
+  border: 2px solid black;
+  box-shadow: 8px 8px 30px 5px gray;
+}
+/* 难度选项 */
+.optionOfDegree {
+  width: 530px;
+  height: 30px;
+  background-color: rgb(192, 192, 192);
+  position: relative;
+  top: 10px;
+  left: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  text-align: left;
+  border-radius: 5px;
+}
+/* 包含所有小格子的大div */
+.bigDiamond {
+  width: 530px;
+  height: 291px;
+  background-color: rgb(192, 192, 192);
+  position: relative;
+  top: 10px;
+  left: 10px;
+  border-radius: 5px;
+  /* margin-right: 1px; */
+  /* margin-bottom: 1px; */
+}
+/* 所有行的样式 */
+.columnOfDiamond {
+  width: 510px;
+  height: 16px;
+  background-color: white;
+  position: relative;
+  top: 10px;
+  left: 10px;
+  /* margin-right: 1px; */
+  margin-bottom: 1px;
+}
+/* 所有列的样式 */
 .littleDiamond {
   width: 16px;
   height: 16px;
   position: relative;
-  top: 10px;
-  left: 10px;
-  font-family: "黑体";
-  font-size: 40px;
-  font-weight: bold;
-  line-height: 100px;
-  float: left;
-  margin-right: 0px;
-  margin-bottom: 0px;
-  color: white;
+  display: inline-block;
+  /* float: left; */
+  /* top: 10px;
+  left: 10px; */
+  margin-right: 1px;
+  margin-bottom: 1px;
+  /* margin: auto, auto; */
+  background-color: rgb(192, 192, 192);
+  cursor: pointer;
 }
-.bigDiamond {
+.littleDiamond:hover {
   width: 16px;
   height: 16px;
-  /* position: relative; */
-  /* top: 0px;
-  left: 0px;
-  /* font-family: "黑体";
-  font-size: 40px;
-  font-weight: bold;
-  line-height: 100px;
-  float: left;
-  margin-right: 10px;
-  margin-bottom: 10px; */
-  color: darkgray;
-}
-.wholePage {
-  width: 550px;
-  height: 300px;
-  background-color: grey;
+  position: relative;
+  display: inline-block;
+  /* float: left; */
+  /* top: 10px;
+  left: 10px; */
+  /* margin-right: 1px; */
+  margin-bottom: 1px;
+  /* margin: auto, auto; */
+  background-color: blue;
+  cursor: pointer;
 }
 </style>
