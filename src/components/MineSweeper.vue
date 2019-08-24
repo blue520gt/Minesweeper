@@ -14,8 +14,8 @@
         <button
           v-for="(mineSweeperHeightItem,j) in mineSweeperWidthItem"
           class="littleDiamond"
-          v-on:click="clickBoom(i,j)"
-        ></button>
+          v-on:mousedown="clickBoom($event,i,j)"
+        >{{statusNow[i][j] > 2 ? (statusNow[i][j]-4) : null}}</button>
       </div>
     </div>
   </div>
@@ -24,10 +24,12 @@
 
 
 <script>
-// mineSweeperStatus:
-// status = 1: 没有点击鼠标&没有鼠标悬浮
-// status = 2: 鼠标悬浮
-// status = 3: 左键点击&击中雷
+import Vue from "Vue";
+// status = 0: 未知但正在揭开
+// status = 1: 未知但是没有雷
+// status = 2: 未知但是有雷
+
+// status = 3: 左键点击 & 击中雷
 // status = 4: 左键点击 & 未击中雷 & 周围有0个雷
 // status = 5: 左键点击 & 未击中雷 & 周围有1个雷
 // status = 6: 左键点击 & 未击中雷 & 周围有2个雷
@@ -37,8 +39,9 @@
 // status = 10: 左键点击 & 未击中雷 & 周围有6个雷
 // status = 11: 左键点击 & 未击中雷 & 周围有7个雷
 // status = 12: 左键点击 & 未击中雷 & 周围有8个雷
-// status = 13: 右键点击（n * 3 + 1）次（小红旗）
-// status = 14: 右键点击（n * 3 + 2）次（问号）
+
+// status = 13: 没有雷，右键点击变成小红旗
+// status = 14: 有雷，右键点击变成小红旗
 export default {
   name: "MineSweeper",
   data() {
@@ -49,22 +52,220 @@ export default {
     };
   },
   created() {
-    for (var i = 0; i < this.mineSweeperWidth; i++) {
-      this.statusNow[i] = [];
-      for (var j = 0; j < this.mineSweeperHeight; j++) {
-        this.statusNow[i][j] = 0;
-      }
-    }
+    this.initGame();
   },
   methods: {
-    clickBoom: function(i, j) {
-      //   点击后修改model的值,onclick事件+子控件和父控件的交互
+    clickBoom(event, i, j) {
+      // 判断点击了左键还是右键
+      if (event.which === 1) {
+        // alert("左键点了第" + (i + 1) + "行，第" + (j + 1) + "列");
+
+        if (1 == this.statusNow[i][j]) {
+          //判断周围8个小格子有没有雷
+          this.statusNow[i][j] = this.eightDiamond(i, j);
+          Vue.set(this.statusNow, i, this.statusNow[i]);
+        } else if (2 == this.statusNow[i][j]) {
+          this.statusNow[i][j] = 3;
+          Vue.set(this.statusNow, i, this.statusNow[i]);
+          //点中雷，游戏结束，把所有的雷都显示出来
+          alert("Game Over!");
+        }
+        //  else if (3 == this.statusNow[i][j]) {
+        //   this.statusNow[i][j] = 2;
+        //   //点中雷，游戏结束，把所有的雷都显示出来
+        //   alert("你又点我了。我又变回去了");
+        // }
+      } else if (event.which === 3) {
+        alert("右键点了第" + (i + 1) + "行，第" + (j + 1) + "列");
+        if (1 == this.statusNow[i][j]) {
+          this.statusNow[i][j] = 13;
+          Vue.set(this.statusNow, i, this.statusNow[i]);
+        } else if (2 == this.statusNow[i][j]) {
+          this.statusNow[i][j] = 14;
+          Vue.set(this.statusNow, i, this.statusNow[i]);
+        } else if (13 == this.statusNow[i][j]) {
+          this.statusNow[i][j] = 1;
+          Vue.set(this.statusNow, i, this.statusNow[i]);
+        } else if (14 == this.statusNow[i][j]) {
+          this.statusNow[i][j] = 2;
+          Vue.set(this.statusNow, i, this.statusNow[i]);
+        }
+      } else {
+        return;
+      }
+      //点击后修改model的值,onclick事件+子控件和父控件的交互
+    },
+    initGame: function() {
+      for (var i = 0; i < this.mineSweeperWidth; i++) {
+        this.statusNow[i] = [];
+        for (var j = 0; j < this.mineSweeperHeight; j++) {
+          this.statusNow[i][j] = 1;
+        }
+      }
+
+      //this.statusNow[Math.floor(first / 30)][first % 30] = 2;
+
+      var i = 0;
+      while (true) {
+        var first = Math.floor(Math.random() * 480);
+        if (this.statusNow[first % 16][first % 30] != 2) {
+          this.statusNow[first % 16][first % 30] = 2;
+          if (++i >= 50) {
+            break;
+          }
+        }
+      }
+    },
+
+    //作用：判断元素周围有几个雷，0个雷时，将周围的方块都翻面，一直到周围有雷不能翻面
+    //参数：i：行,j：列
+    //返回值：通过返回的数值来代表当前元素的新状态
+    // status = 4: 左键点击 & 未击中雷 & 周围有0个雷
+    // status = 5: 左键点击 & 未击中雷 & 周围有1个雷
+    // status = 6: 左键点击 & 未击中雷 & 周围有2个雷
+    // status = 7: 左键点击 & 未击中雷 & 周围有3个雷
+    // status = 8: 左键点击 & 未击中雷 & 周围有4个雷
+    // status = 9: 左键点击 & 未击中雷 & 周围有5个雷
+    // status = 10: 左键点击 & 未击中雷 & 周围有6个雷
+    // status = 11: 左键点击 & 未击中雷 & 周围有7个雷
+    // status = 12: 左键点击 & 未击中雷 & 周围有8个雷
+    eightDiamond: function(i, j) {
+      var boomSum = 0;
+      this.statusNow[i][j] = 0;
+      if (
+        //判断左上角雷的个数
+        i > 0 &&
+        j > 0 &&
+        (2 == this.statusNow[i - 1][j - 1] || 3 == this.statusNow[i - 1][j - 1])
+      ) {
+        boomSum++;
+      }
+      if (
+        //判断正上方雷的个数
+        i > 0 &&
+        (2 == this.statusNow[i - 1][j] || 3 == this.statusNow[i - 1][j])
+      ) {
+        boomSum++;
+      }
+      if (
+        //判断右上角雷的个数
+        i > 0 &&
+        j < 29 &&
+        (2 == this.statusNow[i - 1][j + 1] || 3 == this.statusNow[i - 1][j + 1])
+      ) {
+        boomSum++;
+      }
+      if (
+        //判断正左侧雷的个数
+        j > 0 &&
+        (2 == this.statusNow[i][j - 1] || 3 == this.statusNow[i][j - 1])
+      ) {
+        boomSum++;
+      }
+      if (
+        //判断正右侧雷的个数
+        j < 29 &&
+        (2 == this.statusNow[i][j + 1] || 3 == this.statusNow[i][j + 1])
+      ) {
+        boomSum++;
+      }
+      if (
+        //判断左下角雷的个数
+        i < 15 &&
+        j > 0 &&
+        (2 == this.statusNow[i + 1][j - 1] || 3 == this.statusNow[i + 1][j - 1])
+      ) {
+        boomSum++;
+      }
+      if (
+        //判断正下方雷的个数
+        i < 15 &&
+        (2 == this.statusNow[i + 1][j] || 3 == this.statusNow[i + 1][j])
+      ) {
+        boomSum++;
+      }
+      if (
+        //判断右下角雷的个数
+        i < 15 &&
+        j < 29 &&
+        (2 == this.statusNow[i + 1][j + 1] || 3 == this.statusNow[i + 1][j + 1])
+      ) {
+        boomSum++;
+      }
+
+      if (0 == boomSum) {
+        if (
+          //揭开左上角
+          i > 0 &&
+          j > 0 &&
+          (1 == this.statusNow[i - 1][j - 1] ||
+            13 == this.statusNow[i - 1][j - 1])
+        ) {
+          this.statusNow[i - 1][j - 1] = this.eightDiamond(i - 1, j - 1);
+        }
+        if (
+          //揭开正上方
+          i > 0 &&
+          (1 == this.statusNow[i - 1][j] || 13 == this.statusNow[i - 1][j])
+        ) {
+          this.statusNow[i - 1][j] = this.eightDiamond(i - 1, j);
+        }
+        if (
+          //揭开右上角
+          i > 0 &&
+          j < 29 &&
+          (1 == this.statusNow[i - 1][j + 1] ||
+            13 == this.statusNow[i - 1][j + 1])
+        ) {
+          this.statusNow[i - 1][j + 1] = this.eightDiamond(i - 1, j + 1);
+        }
+        if (
+          //揭开正左侧
+          j > 0 &&
+          (1 == this.statusNow[i][j - 1] || 13 == this.statusNow[i][j - 1])
+        ) {
+          this.statusNow[i][j - 1] = this.eightDiamond(i, j - 1);
+        }
+        if (
+          //揭开正右侧
+          j < 29 &&
+          (1 == this.statusNow[i][j + 1] || 13 == this.statusNow[i][j + 1])
+        ) {
+          this.statusNow[i][j + 1] = this.eightDiamond(i, j + 1);
+        }
+        if (
+          //揭开左下角
+          i < 15 &&
+          j > 0 &&
+          (1 == this.statusNow[i + 1][j - 1] ||
+            13 == this.statusNow[i + 1][j - 1])
+        ) {
+          this.statusNow[i + 1][j - 1] = this.eightDiamond(i + 1, j - 1);
+        }
+        if (
+          //揭开正下方
+          i < 15 &&
+          (1 == this.statusNow[i + 1][j] || 13 == this.statusNow[i + 1][j])
+        ) {
+          this.statusNow[i + 1][j] = this.eightDiamond(i + 1, j);
+        }
+        if (
+          //揭开右下角
+          i < 15 &&
+          j < 29 &&
+          (1 == this.statusNow[i + 1][j + 1] ||
+            13 == this.statusNow[i + 1][j + 1])
+        ) {
+          this.statusNow[i + 1][j + 1] = this.eightDiamond(i + 1, j + 1);
+        }
+      }
+      return boomSum + 4;
     }
   }
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
+// <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 /* 最外的div */
 .wholePage {
@@ -109,6 +310,7 @@ export default {
   position: relative;
   top: 10px;
   left: 10px;
+
   /* margin-right: 1px; */
   margin-bottom: 1px;
 }
@@ -121,12 +323,14 @@ export default {
   /* float: left; */
   /* top: 10px;
   left: 10px; */
+
   margin-right: 1px;
   margin-bottom: 1px;
   /* margin: auto, auto; */
   background-color: rgb(192, 192, 192);
   cursor: pointer;
 }
+/* 最小的小方格的样式 */
 .littleDiamond:hover {
   width: 16px;
   height: 16px;
