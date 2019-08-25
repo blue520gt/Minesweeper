@@ -3,7 +3,15 @@
   <div class="wholePage">
     <!-- 操作按钮区域 -->
     <div class="optionOfDegree">
-      <b>选项</b>
+      <select>
+        <option value="1">选项</option>
+        <option value="2">开始游戏</option>
+        <option value="3">重置游戏</option>
+      </select>
+      <a>&nbsp;&nbsp;&nbsp;&nbsp;请输入雷数:</a>
+      <input v-model="remainMineNum" style="width:20px" />
+      <a>&nbsp;&nbsp;&nbsp;&nbsp;剩余雷数：{{remainMineNum}}个</a>
+      <a>&nbsp;&nbsp;&nbsp;&nbsp;计时器</a>
     </div>
     <!-- 包含所有小方格的大格子 -->
     <div class="bigDiamond">
@@ -14,6 +22,7 @@
         <button
           v-for="(mineSweeperHeightItem,j) in mineSweeperWidthItem"
           class="littleDiamond"
+          :id="'a' + i + 'b' + j"
           v-on:mousedown="clickBoom($event,i,j)"
         >{{statusNow[i][j] > 2 ? (statusNow[i][j]-4) : null}}</button>
       </div>
@@ -48,7 +57,8 @@ export default {
     return {
       statusNow: [],
       mineSweeperWidth: 16,
-      mineSweeperHeight: 30
+      mineSweeperHeight: 30,
+      remainMineNum: 50
     };
   },
   created() {
@@ -65,6 +75,8 @@ export default {
           this.statusNow[i][j] = this.eightDiamond(i, j);
           Vue.set(this.statusNow, i, this.statusNow[i]);
         } else if (2 == this.statusNow[i][j]) {
+          document.getElementById("a" + i + "b" + j).className =
+            "littleDiamond littleDiamond_3";
           this.statusNow[i][j] = 3;
           Vue.set(this.statusNow, i, this.statusNow[i]);
           //点中雷，游戏结束，把所有的雷都显示出来
@@ -110,7 +122,7 @@ export default {
         var first = Math.floor(Math.random() * 480);
         if (this.statusNow[first % 16][first % 30] != 2) {
           this.statusNow[first % 16][first % 30] = 2;
-          if (++i >= 50) {
+          if (++i >= this.remainMineNum) {
             break;
           }
         }
@@ -281,7 +293,7 @@ export default {
 .optionOfDegree {
   width: 530px;
   height: 30px;
-  background-color: rgb(192, 192, 192);
+  background-color: rgb(221, 225, 230);
   position: relative;
   top: 10px;
   left: 10px;
@@ -294,7 +306,7 @@ export default {
 .bigDiamond {
   width: 530px;
   height: 291px;
-  background-color: rgb(192, 192, 192);
+  background-color: rgb(221, 225, 230);
   position: relative;
   top: 10px;
   left: 10px;
@@ -327,7 +339,7 @@ export default {
   margin-right: 1px;
   margin-bottom: 1px;
   /* margin: auto, auto; */
-  background-color: rgb(192, 192, 192);
+  background-color: rgb(221, 225, 230);
   cursor: pointer;
 }
 /* 最小的小方格的样式 */
@@ -342,7 +354,22 @@ export default {
   /* margin-right: 1px; */
   margin-bottom: 1px;
   /* margin: auto, auto; */
-  background-color: blue;
+  background-color: rgb(192, 192, 192);
+  cursor: pointer;
+}
+/* statusNow==3时候的样式 */
+.littleDiamond_3 {
+  width: 16px;
+  height: 16px;
+  position: relative;
+  display: inline-block;
+  /* float: left; */
+  /* top: 10px;
+  left: 10px; */
+  margin-right: 1px;
+  margin-bottom: 1px;
+  /* margin: auto, auto; */
+  background-color: red;
   cursor: pointer;
 }
 </style>
