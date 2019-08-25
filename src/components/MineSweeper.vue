@@ -22,9 +22,11 @@
         <button
           v-for="(mineSweeperHeightItem,j) in mineSweeperWidthItem"
           class="littleDiamond"
-          :id="'a' + i + 'b' + j"
+          v-bind:class="{littleDiamond_3:statusNow[i][j]==3,
+          littleDiamond_mouseDown:4<=statusNow[i][j]&&statusNow[i][j]<=12,
+          littleDiamond_mouseRight:13==statusNow[i][j]||14==statusNow[i][j]}"
           v-on:mousedown="clickBoom($event,i,j)"
-        >{{statusNow[i][j] > 2 ? (statusNow[i][j]-4) : null}}</button>
+        >{{(statusNow[i][j] > 4 && statusNow[i][j]<13)? (statusNow[i][j]-4) : null}}</button>
       </div>
     </div>
   </div>
@@ -58,7 +60,7 @@ export default {
       statusNow: [],
       mineSweeperWidth: 16,
       mineSweeperHeight: 30,
-      remainMineNum: 50
+      remainMineNum: 100
     };
   },
   created() {
@@ -75,12 +77,14 @@ export default {
           this.statusNow[i][j] = this.eightDiamond(i, j);
           Vue.set(this.statusNow, i, this.statusNow[i]);
         } else if (2 == this.statusNow[i][j]) {
-          document.getElementById("a" + i + "b" + j).className =
-            "littleDiamond littleDiamond_3";
           this.statusNow[i][j] = 3;
           Vue.set(this.statusNow, i, this.statusNow[i]);
           //点中雷，游戏结束，把所有的雷都显示出来
-          alert("Game Over!");
+          setTimeout(() => {
+            alert("Game Over! Try Again!");
+            this.initGame();
+            Vue.set(this.statusNow, 0, this.statusNow[0]);
+          }, 100);
         }
         //  else if (3 == this.statusNow[i][j]) {
         //   this.statusNow[i][j] = 2;
@@ -88,7 +92,10 @@ export default {
         //   alert("你又点我了。我又变回去了");
         // }
       } else if (event.which === 3) {
-        alert("右键点了第" + (i + 1) + "行，第" + (j + 1) + "列");
+        document.oncontextmenu = function() {
+          return false;
+        };
+        // alert("右键点了第" + (i + 1) + "行，第" + (j + 1) + "列");
         if (1 == this.statusNow[i][j]) {
           this.statusNow[i][j] = 13;
           Vue.set(this.statusNow, i, this.statusNow[i]);
@@ -359,17 +366,14 @@ export default {
 }
 /* statusNow==3时候的样式 */
 .littleDiamond_3 {
-  width: 16px;
-  height: 16px;
-  position: relative;
-  display: inline-block;
-  /* float: left; */
-  /* top: 10px;
-  left: 10px; */
-  margin-right: 1px;
-  margin-bottom: 1px;
-  /* margin: auto, auto; */
-  background-color: red;
-  cursor: pointer;
+  background: url(../assets/clickBoom.png);
+  background-size: 15px 15px;
+}
+.littleDiamond_mouseDown {
+  background-color: rgb(192, 192, 192);
+}
+.littleDiamond_mouseRight {
+  background: url(../assets/flag.png);
+  background-size: 15px 15px;
 }
 </style>
