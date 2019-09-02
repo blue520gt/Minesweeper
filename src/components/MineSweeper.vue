@@ -126,6 +126,7 @@ export default {
       } else {
         return;
       }
+
       //点击后修改model的值,onclick事件+子控件和父控件的交互
     },
     initGame: function() {
@@ -179,14 +180,18 @@ export default {
         //判断左上角雷的个数
         i > 0 &&
         j > 0 &&
-        (2 == this.statusNow[i - 1][j - 1] || 3 == this.statusNow[i - 1][j - 1])
+        (2 == this.statusNow[i - 1][j - 1] ||
+          3 == this.statusNow[i - 1][j - 1] ||
+          14 == this.statusNow[i - 1][j - 1])
       ) {
         boomSum++;
       }
       if (
         //判断正上方雷的个数
         i > 0 &&
-        (2 == this.statusNow[i - 1][j] || 3 == this.statusNow[i - 1][j])
+        (2 == this.statusNow[i - 1][j] ||
+          3 == this.statusNow[i - 1][j] ||
+          14 == this.statusNow[i - 1][j])
       ) {
         boomSum++;
       }
@@ -194,21 +199,27 @@ export default {
         //判断右上角雷的个数
         i > 0 &&
         j < 29 &&
-        (2 == this.statusNow[i - 1][j + 1] || 3 == this.statusNow[i - 1][j + 1])
+        (2 == this.statusNow[i - 1][j + 1] ||
+          3 == this.statusNow[i - 1][j + 1] ||
+          14 == this.statusNow[i - 1][j + 1])
       ) {
         boomSum++;
       }
       if (
         //判断正左侧雷的个数
         j > 0 &&
-        (2 == this.statusNow[i][j - 1] || 3 == this.statusNow[i][j - 1])
+        (2 == this.statusNow[i][j - 1] ||
+          3 == this.statusNow[i][j - 1] ||
+          14 == this.statusNow[i][j - 1])
       ) {
         boomSum++;
       }
       if (
         //判断正右侧雷的个数
         j < 29 &&
-        (2 == this.statusNow[i][j + 1] || 3 == this.statusNow[i][j + 1])
+        (2 == this.statusNow[i][j + 1] ||
+          3 == this.statusNow[i][j + 1] ||
+          14 == this.statusNow[i][j + 1])
       ) {
         boomSum++;
       }
@@ -216,14 +227,18 @@ export default {
         //判断左下角雷的个数
         i < 15 &&
         j > 0 &&
-        (2 == this.statusNow[i + 1][j - 1] || 3 == this.statusNow[i + 1][j - 1])
+        (2 == this.statusNow[i + 1][j - 1] ||
+          3 == this.statusNow[i + 1][j - 1] ||
+          14 == this.statusNow[i + 1][j - 1])
       ) {
         boomSum++;
       }
       if (
         //判断正下方雷的个数
         i < 15 &&
-        (2 == this.statusNow[i + 1][j] || 3 == this.statusNow[i + 1][j])
+        (2 == this.statusNow[i + 1][j] ||
+          3 == this.statusNow[i + 1][j] ||
+          14 == this.statusNow[i + 1][j])
       ) {
         boomSum++;
       }
@@ -231,7 +246,9 @@ export default {
         //判断右下角雷的个数
         i < 15 &&
         j < 29 &&
-        (2 == this.statusNow[i + 1][j + 1] || 3 == this.statusNow[i + 1][j + 1])
+        (2 == this.statusNow[i + 1][j + 1] ||
+          3 == this.statusNow[i + 1][j + 1] ||
+          14 == this.statusNow[i + 1][j + 1])
       ) {
         boomSum++;
       }
