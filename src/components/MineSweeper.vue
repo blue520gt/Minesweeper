@@ -9,7 +9,7 @@
         <option value="3">重置游戏</option>
       </select>
       <a>&nbsp;&nbsp;&nbsp;&nbsp;请输入雷数:</a>
-      <input v-model="remainMineNum" style="width:20px" />
+      <input v-model="remainMineNum" style="width:30px" />
       <a>&nbsp;&nbsp;&nbsp;&nbsp;剩余雷数：{{remainMineNum}}个</a>
       <a>&nbsp;&nbsp;&nbsp;&nbsp;计时器</a>
     </div>
@@ -24,7 +24,7 @@
           class="littleDiamond"
           v-bind:class="{littleDiamond_3:statusNow[i][j]==3,
           littleDiamond_mouseDown:4<=statusNow[i][j]&&statusNow[i][j]<=12,
-          littleDiamond_mouseRight:13==statusNow[i][j]||14==statusNow[i][j]}"
+          littleDiamond_mouseRight:13==statusNow[i][j]||14==statusNow[i][j],littleDiamond_15:statusNow[i][j]==15,littleDiamond_16:statusNow[i][j]==16}"
           v-on:mousedown="clickBoom($event,i,j)"
         >{{(statusNow[i][j] > 4 && statusNow[i][j]<13)? (statusNow[i][j]-4) : null}}</button>
       </div>
@@ -53,6 +53,8 @@ import Vue from "Vue";
 
 // status = 13: 没有雷，右键点击变成小红旗
 // status = 14: 有雷，右键点击变成小红旗
+// status = 15: 点中雷后，其他雷的样式
+// status = 16: 点中雷后，右键已标记了小红旗的样式
 export default {
   name: "MineSweeper",
   data() {
@@ -80,6 +82,18 @@ export default {
           this.statusNow[i][j] = 3;
           Vue.set(this.statusNow, i, this.statusNow[i]);
           //点中雷，游戏结束，把所有的雷都显示出来
+          for (var i = 0; i < this.mineSweeperWidth; i++) {
+            // this.statusNow[i] = [];
+            for (var j = 0; j < this.mineSweeperHeight; j++) {
+              if (this.statusNow[i][j] == 2) {
+                this.statusNow[i][j] = 15;
+              }
+              if (this.statusNow[i][j] == 13) {
+                this.statusNow[i][j] = 16;
+              }
+            }
+          }
+          // Vue.set(this.statusNow, i, this.statusNow[i]);
           setTimeout(() => {
             alert("Game Over! Try Again!");
             this.initGame();
@@ -139,6 +153,11 @@ export default {
     //作用：判断元素周围有几个雷，0个雷时，将周围的方块都翻面，一直到周围有雷不能翻面
     //参数：i：行,j：列
     //返回值：通过返回的数值来代表当前元素的新状态
+    // status = 0: 未知但正在揭开
+    // status = 1: 未知但是没有雷
+    // status = 2: 未知但是有雷
+
+    // status = 3: 左键点击 & 击中雷
     // status = 4: 左键点击 & 未击中雷 & 周围有0个雷
     // status = 5: 左键点击 & 未击中雷 & 周围有1个雷
     // status = 6: 左键点击 & 未击中雷 & 周围有2个雷
@@ -148,6 +167,11 @@ export default {
     // status = 10: 左键点击 & 未击中雷 & 周围有6个雷
     // status = 11: 左键点击 & 未击中雷 & 周围有7个雷
     // status = 12: 左键点击 & 未击中雷 & 周围有8个雷
+
+    // status = 13: 没有雷，右键点击变成小红旗
+    // status = 14: 有雷，右键点击变成小红旗
+    // status = 15: 点中雷后，其他雷的样式
+    // status = 16: 点中雷后，右键已标记了小红旗的样式
     eightDiamond: function(i, j) {
       var boomSum = 0;
       this.statusNow[i][j] = 0;
@@ -217,15 +241,16 @@ export default {
           //揭开左上角
           i > 0 &&
           j > 0 &&
-          (1 == this.statusNow[i - 1][j - 1] ||
-            13 == this.statusNow[i - 1][j - 1])
+          1 == this.statusNow[i - 1][j - 1]
+          // ||13 == this.statusNow[i - 1][j - 1]
         ) {
           this.statusNow[i - 1][j - 1] = this.eightDiamond(i - 1, j - 1);
         }
         if (
           //揭开正上方
           i > 0 &&
-          (1 == this.statusNow[i - 1][j] || 13 == this.statusNow[i - 1][j])
+          1 == this.statusNow[i - 1][j]
+          // || 13 == this.statusNow[i - 1][j]
         ) {
           this.statusNow[i - 1][j] = this.eightDiamond(i - 1, j);
         }
@@ -233,22 +258,24 @@ export default {
           //揭开右上角
           i > 0 &&
           j < 29 &&
-          (1 == this.statusNow[i - 1][j + 1] ||
-            13 == this.statusNow[i - 1][j + 1])
+          1 == this.statusNow[i - 1][j + 1]
+          // ||13 == this.statusNow[i - 1][j + 1]
         ) {
           this.statusNow[i - 1][j + 1] = this.eightDiamond(i - 1, j + 1);
         }
         if (
           //揭开正左侧
           j > 0 &&
-          (1 == this.statusNow[i][j - 1] || 13 == this.statusNow[i][j - 1])
+          1 == this.statusNow[i][j - 1]
+          // || 13 == this.statusNow[i][j - 1]
         ) {
           this.statusNow[i][j - 1] = this.eightDiamond(i, j - 1);
         }
         if (
           //揭开正右侧
           j < 29 &&
-          (1 == this.statusNow[i][j + 1] || 13 == this.statusNow[i][j + 1])
+          1 == this.statusNow[i][j + 1]
+          // || 13 == this.statusNow[i][j + 1]
         ) {
           this.statusNow[i][j + 1] = this.eightDiamond(i, j + 1);
         }
@@ -256,15 +283,16 @@ export default {
           //揭开左下角
           i < 15 &&
           j > 0 &&
-          (1 == this.statusNow[i + 1][j - 1] ||
-            13 == this.statusNow[i + 1][j - 1])
+          1 == this.statusNow[i + 1][j - 1]
+          //  ||13 == this.statusNow[i + 1][j - 1]
         ) {
           this.statusNow[i + 1][j - 1] = this.eightDiamond(i + 1, j - 1);
         }
         if (
           //揭开正下方
           i < 15 &&
-          (1 == this.statusNow[i + 1][j] || 13 == this.statusNow[i + 1][j])
+          1 == this.statusNow[i + 1][j]
+          //  13 == this.statusNow[i + 1][j]
         ) {
           this.statusNow[i + 1][j] = this.eightDiamond(i + 1, j);
         }
@@ -272,8 +300,8 @@ export default {
           //揭开右下角
           i < 15 &&
           j < 29 &&
-          (1 == this.statusNow[i + 1][j + 1] ||
-            13 == this.statusNow[i + 1][j + 1])
+          1 == this.statusNow[i + 1][j + 1]
+          //  ||13 == this.statusNow[i + 1][j + 1]
         ) {
           this.statusNow[i + 1][j + 1] = this.eightDiamond(i + 1, j + 1);
         }
@@ -348,6 +376,7 @@ export default {
   /* margin: auto, auto; */
   background-color: rgb(221, 225, 230);
   cursor: pointer;
+  outline: none;
 }
 /* 最小的小方格的样式 */
 .littleDiamond:hover {
@@ -374,6 +403,14 @@ export default {
 }
 .littleDiamond_mouseRight {
   background: url(../assets/flag.png);
+  background-size: 15px 15px;
+}
+.littleDiamond_15 {
+  background: url(../assets/boom.png);
+  background-size: 15px 15px;
+}
+.littleDiamond_16 {
+  background: url(../assets/flagError.png);
   background-size: 15px 15px;
 }
 </style>
