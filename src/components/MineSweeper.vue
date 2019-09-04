@@ -3,15 +3,14 @@
   <div class="wholePage">
     <!-- 操作按钮区域 -->
     <div class="optionOfDegree">
-      <select>
-        <option value="1">选项</option>
-        <option value="2">开始游戏</option>
-        <option value="3">重置游戏</option>
-      </select>
+      <button v-on:click="initGame()">开始/重置</button>
       <a>&nbsp;&nbsp;&nbsp;&nbsp;请输入雷数:</a>
       <input v-model="remainMineNum" style="width:30px" />
       <a>&nbsp;&nbsp;&nbsp;&nbsp;剩余雷数：{{remainMineNum}}个</a>
-      <a>&nbsp;&nbsp;&nbsp;&nbsp;计时器</a>
+      <a>
+        &nbsp;&nbsp;&nbsp;&nbsp;计时器:{{Math.floor(second/60) > 9 ? Math.floor(second/60) : '0'
+        + (Math.floor(second/60))}}:{{second%60 > 9 ? second%60 : '0' + (second%60)}}
+      </a>
     </div>
     <!-- 包含所有小方格的大格子 -->
     <div class="bigDiamond">
@@ -62,7 +61,9 @@ export default {
       statusNow: [],
       mineSweeperWidth: 16,
       mineSweeperHeight: 30,
-      remainMineNum: 100
+      remainMineNum: 5,
+      second: 0,
+      inerval: null
     };
   },
   created() {
@@ -96,6 +97,8 @@ export default {
           // Vue.set(this.statusNow, i, this.statusNow[i]);
           setTimeout(() => {
             alert("Game Over! Try Again!");
+            clearInterval(this.inerval);
+            this.inerval = null;
             this.initGame();
             Vue.set(this.statusNow, 0, this.statusNow[0]);
           }, 100);
@@ -116,6 +119,20 @@ export default {
         } else if (2 == this.statusNow[i][j]) {
           this.statusNow[i][j] = 14;
           Vue.set(this.statusNow, i, this.statusNow[i]);
+          var statusNowNum = 0;
+          for (var i = 0; i < this.mineSweeperWidth; i++) {
+            for (var j = 0; j < this.mineSweeperHeight; j++) {
+              if (14 == this.statusNow[i][j]) {
+                statusNowNum = statusNowNum + 1;
+                if (statusNowNum == this.remainMineNum) {
+                  alert("Congratulations！You win the game!");
+                  clearInterval(this.inerval);
+                  this.inerval = null;
+                  this.initGame();
+                }
+              }
+            }
+          }
         } else if (13 == this.statusNow[i][j]) {
           this.statusNow[i][j] = 1;
           Vue.set(this.statusNow, i, this.statusNow[i]);
@@ -130,13 +147,13 @@ export default {
       //点击后修改model的值,onclick事件+子控件和父控件的交互
     },
     initGame: function() {
+      console.log("init once");
       for (var i = 0; i < this.mineSweeperWidth; i++) {
         this.statusNow[i] = [];
         for (var j = 0; j < this.mineSweeperHeight; j++) {
           this.statusNow[i][j] = 1;
         }
       }
-
       //this.statusNow[Math.floor(first / 30)][first % 30] = 2;
 
       var i = 0;
@@ -148,6 +165,16 @@ export default {
             break;
           }
         }
+      }
+      Vue.set(this.statusNow, 0, this.statusNow[0]);
+
+      this.second = 0;
+      if (this.inerval == null) {
+        this.inerval = setInterval(() => {
+          this.second++;
+          this.second = Math.round(this.second);
+          console.log("second:" + this.second);
+        }, 1000);
       }
     },
 
@@ -345,7 +372,7 @@ export default {
 .optionOfDegree {
   width: 530px;
   height: 30px;
-  background-color: rgb(221, 225, 230);
+  background-color: rgb(240, 243, 244);
   position: relative;
   top: 10px;
   left: 10px;
@@ -358,7 +385,7 @@ export default {
 .bigDiamond {
   width: 530px;
   height: 291px;
-  background-color: rgb(221, 225, 230);
+  background-color: rgb(240, 243, 244);
   position: relative;
   top: 10px;
   left: 10px;
@@ -391,7 +418,7 @@ export default {
   margin-right: 1px;
   margin-bottom: 1px;
   /* margin: auto, auto; */
-  background-color: rgb(221, 225, 230);
+  background-color: rgb(240, 243, 244);
   cursor: pointer;
   outline: none;
 }
@@ -407,7 +434,7 @@ export default {
   /* margin-right: 1px; */
   margin-bottom: 1px;
   /* margin: auto, auto; */
-  background-color: rgb(192, 192, 192);
+  background-color: rgb(193, 193, 193);
   cursor: pointer;
 }
 /* statusNow==3时候的样式 */
@@ -416,7 +443,7 @@ export default {
   background-size: 15px 15px;
 }
 .littleDiamond_mouseDown {
-  background-color: rgb(192, 192, 192);
+  background-color: rgb(193, 193, 193);
 }
 .littleDiamond_mouseRight {
   background: url(../assets/flag.png);
